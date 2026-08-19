@@ -12,6 +12,22 @@ keepalived_config_path: /etc/keepalived/keepalived.conf
 # host_vars only when Keepalived must use a different local address.
 keepalived_node_address: "{{ ansible_host | default(inventory_hostname) }}"
 
+# Set this to an existing inventory group to discover unicast peers from its
+# ansible_host values. A host_vars keepalived_peer_addresses list overrides
+# the discovered list for exceptional hosts.
+keepalived_peer_group: ""
+keepalived_peer_addresses: >-
+  {{
+    (
+      groups[keepalived_peer_group]
+      | reject('equalto', inventory_hostname)
+      | map('extract', hostvars, 'ansible_host')
+      | list
+    )
+    if (keepalived_peer_group | length > 0)
+    else []
+  }}
+
 # Optional text written at the beginning of keepalived.conf, for example:
 # keepalived_config_header: |
 #   # Managed by Ansible

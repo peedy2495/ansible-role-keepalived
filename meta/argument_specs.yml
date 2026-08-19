@@ -25,6 +25,17 @@ argument_specs:
         description: >-
           Local Keepalived address. Defaults to the inventory ansible_host
           value, or inventory_hostname when ansible_host is undefined.
+      keepalived_peer_group:
+        type: str
+        default: ""
+        description: >-
+          Existing inventory group from which unicast peers are discovered.
+      keepalived_peer_addresses:
+        type: list
+        elements: str
+        description: >-
+          Unicast peer addresses. A value in host_vars overrides automatic
+          discovery through keepalived_peer_group.
       keepalived_config_header:
         type: str
         default: "# This file is managed by Ansible."

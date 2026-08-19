@@ -2,6 +2,8 @@
 - name: Exercise the safe default
   hosts: localhost
   gather_facts: true
+  vars:
+    keepalived_peer_group: load_balancers
   roles:
     - role: ansible-role-keepalived
   post_tasks:
@@ -9,3 +11,8 @@
       ansible.builtin.assert:
         that:
           - keepalived_node_address == ansible_host
+
+    - name: Verify peers are discovered from the configured inventory group
+      ansible.builtin.assert:
+        that:
+          - keepalived_peer_addresses == ['192.0.2.12']

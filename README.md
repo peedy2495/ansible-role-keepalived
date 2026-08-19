@@ -41,6 +41,7 @@ while host variables provide only the values that differ per node.
 # group_vars/load_balancers/keepalived.yml
 ---
 keepalived_state: present
+keepalived_peer_group: load_balancers
 
 keepalived_global_defs:
   router_id: "{{ inventory_hostname }}"
@@ -75,8 +76,6 @@ keepalived_vrrp_instances:
 ---
 keepalived_node_interface: ens18
 keepalived_node_priority: 150
-keepalived_peer_addresses:
-  - 192.0.2.12
 ```
 
 ```yaml
@@ -84,8 +83,22 @@ keepalived_peer_addresses:
 ---
 keepalived_node_interface: ens18
 keepalived_node_priority: 100
+```
+
+By default, `keepalived_peer_addresses` contains the `ansible_host` value of
+every other member of `keepalived_peer_group`. Discovery uses the complete
+inventory group and is therefore unaffected by `--limit` or play batching.
+The group must contain only members of the same VRRP cluster.
+
+For an exceptional host, define a manual list in `host_vars`; normal Ansible
+precedence makes it override the discovered role default:
+
+```yaml
+# host_vars/lb01.yml
+---
 keepalived_peer_addresses:
-  - 192.0.2.11
+  - 192.0.2.12
+  - 192.0.2.13
 ```
 
 `keepalived_node_address` defaults to the host's `ansible_host` inventory
