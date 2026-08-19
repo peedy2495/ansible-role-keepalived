@@ -1,0 +1,75 @@
+{{ keepalived_config_header }}
+{% if keepalived_global_defs | length > 0 %}
+
+global_defs {
+{% for key, value in keepalived_global_defs.items() %}
+{% if value is boolean %}
+{% if value %}    {{ key }}
+{% endif %}
+{% elif value is sequence and value is not string %}
+{% for entry in value %}    {{ key }} {{ entry }}
+{% endfor %}
+{% else %}    {{ key }} {{ value }}
+{% endif %}
+{% endfor %}}
+{% endif %}
+{% for script in keepalived_vrrp_scripts %}
+
+vrrp_script {{ script.name }} {
+    script "{{ script.script }}"
+{% if script.interval is defined %}    interval {{ script.interval }}
+{% endif %}
+{% if script.timeout is defined %}    timeout {{ script.timeout }}
+{% endif %}
+{% if script.weight is defined %}    weight {{ script.weight }}
+{% endif %}
+{% if script.rise is defined %}    rise {{ script.rise }}
+{% endif %}
+{% if script.fall is defined %}    fall {{ script.fall }}
+{% endif %}
+{% if script.user is defined %}    user {{ script.user }}
+{% endif %}
+}
+{% endfor %}
+{% for instance in keepalived_vrrp_instances %}
+
+vrrp_instance {{ instance.name }} {
+    state {{ instance.state | default('BACKUP') }}
+    interface {{ instance.interface }}
+    virtual_router_id {{ instance.virtual_router_id }}
+    priority {{ instance.priority }}
+    advert_int {{ instance.advert_int | default(1) }}
+{% if instance.nopreempt | default(false) %}    nopreempt
+{% endif %}
+{% if instance.preempt_delay is defined %}    preempt_delay {{ instance.preempt_delay }}
+{% endif %}
+{% if instance.unicast_src_ip is defined %}    unicast_src_ip {{ instance.unicast_src_ip }}
+{% endif %}
+{% if instance.unicast_peers | default([]) | length > 0 %}    unicast_peer {
+{% for peer in instance.unicast_peers %}        {{ peer }}
+{% endfor %}    }
+{% endif %}
+{% if instance.auth_type is defined %}    authentication {
+        auth_type {{ instance.auth_type }}
+        auth_pass {{ keepalived_vrrp_auth_passes[instance.name] }}
+    }
+{% endif %}
+    virtual_ipaddress {
+{% for address in instance.virtual_ipaddresses %}        {{ address }}
+{% endfor %}    }
+{% if instance.track_interfaces | default([]) | length > 0 %}    track_interface {
+{% for interface in instance.track_interfaces %}        {{ interface }}
+{% endfor %}    }
+{% endif %}
+{% if instance.track_scripts | default([]) | length > 0 %}    track_script {
+{% for script in instance.track_scripts %}        {{ script }}
+{% endfor %}    }
+{% endif %}
+{% if instance.notify_master is defined %}    notify_master "{{ instance.notify_master }}"
+{% endif %}
+{% if instance.notify_backup is defined %}    notify_backup "{{ instance.notify_backup }}"
+{% endif %}
+{% if instance.notify_fault is defined %}    notify_fault "{{ instance.notify_fault }}"
+{% endif %}
+}
+{% endfor %}

@@ -1,0 +1,17 @@
+---
+- name: Stop and disable keepalived
+  ansible.builtin.service:
+    name: "{{ keepalived_service_name }}"
+    enabled: false
+    state: stopped
+  failed_when: false
+
+- name: Remove keepalived package
+  ansible.builtin.package:
+    name: "{{ keepalived_package_name }}"
+    state: absent
+
+- name: Remove managed keepalived configuration
+  ansible.builtin.file:
+    path: "{{ keepalived_config_path }}"
+    state: absent

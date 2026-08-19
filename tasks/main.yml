@@ -1,0 +1,34 @@
+---
+- name: Validate keepalived lifecycle state
+  ansible.builtin.assert:
+    that:
+      - keepalived_state in ['present', 'absent', 'unmanaged']
+    fail_msg: >-
+      keepalived_state must be one of present, absent, or unmanaged;
+      received {{ keepalived_state | default('undefined') }}.
+
+- name: Manage keepalived
+  when: keepalived_state != 'unmanaged'
+  block:
+    - name: Validate supported operating system
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.distribution in keepalived_supported_os_versions
+          - >-
+            ansible_facts.distribution_major_version in
+            keepalived_supported_os_versions.get(
+              ansible_facts.distribution, []
+            )
+        fail_msg: >-
+          This role supports Ubuntu 22/24/26, Debian 12/13, and Rocky Linux
+          8/9/10. Detected
+          {{ ansible_facts.distribution }}
+          {{ ansible_facts.distribution_version }}.
+
+    - name: Install and configure keepalived
+      ansible.builtin.include_tasks: present.yml
+      when: keepalived_state == 'present'
+
+    - name: Remove keepalived
+      ansible.builtin.include_tasks: absent.yml
+      when: keepalived_state == 'absent'

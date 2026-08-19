@@ -1,0 +1,74 @@
+---
+- name: Require at least one VRRP instance
+  ansible.builtin.assert:
+    that:
+      - keepalived_vrrp_instances | length > 0
+    fail_msg: >-
+      keepalived_state is present, but keepalived_vrrp_instances is empty.
+
+- name: Validate VRRP scripts
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.script is defined
+    fail_msg: Every keepalived_vrrp_scripts entry must define name and script.
+  loop: "{{ keepalived_vrrp_scripts }}"
+  loop_control:
+    label: "{{ item.name | default('unnamed script') }}"
+
+- name: Validate VRRP instances
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.interface is defined
+      - item.virtual_router_id is defined
+      - item.virtual_router_id | int >= 1
+      - item.virtual_router_id | int <= 255
+      - item.priority is defined
+      - item.priority | int >= 1
+      - item.priority | int <= 255
+      - item.virtual_ipaddresses is defined
+      - item.virtual_ipaddresses | length > 0
+      - item.state | default('BACKUP') in ['MASTER', 'BACKUP']
+      - (item.auth_type | default('PASS')) in ['PASS', 'AH']
+      - item.auth_pass is not defined
+      - >-
+        item.auth_type is not defined or
+        item.name in (keepalived_vrrp_auth_passes | default({}))
+    fail_msg: >-
+      Every VRRP instance must define name, interface, virtual_router_id
+      (1-255), priority (1-255), and at least one virtual_ipaddresses entry.
+      Do not put auth_pass in inventory. When auth_type is set, provide the
+      password through the keepalived_vrrp_auth_passes extra variable.
+  loop: "{{ keepalived_vrrp_instances }}"
+  loop_control:
+    label: "{{ item.name | default('unnamed instance') }}"
+
+- name: Install keepalived
+  ansible.builtin.package:
+    name: "{{ keepalived_package_name }}"
+    state: present
+
+- name: Create keepalived configuration directory
+  ansible.builtin.file:
+    path: "{{ keepalived_config_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure keepalived
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: "{{ keepalived_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "/usr/sbin/keepalived --config-test --config-file %s"
+  notify: Restart keepalived
+
+- name: Enable and start keepalived
+  ansible.builtin.service:
+    name: "{{ keepalived_service_name }}"
+    enabled: true
+    state: started

@@ -1,0 +1,19 @@
+---
+# Host lifecycle marker. Set this in group_vars or host_vars.
+# Supported values: present, absent, unmanaged.
+keepalived_state: unmanaged
+
+# The package name is equal in used distributions.
+keepalived_package_name: keepalived
+keepalived_service_name: keepalived
+keepalived_config_path: /etc/keepalived/keepalived.conf
+
+# Optional text written at the beginning of keepalived.conf, for example:
+# keepalived_config_header: |
+#   # Managed by Ansible
+keepalived_config_header: "# This file is managed by Ansible."
+
+# Structured Keepalived configuration. See README.md for inventory examples.
+keepalived_global_defs: {}
+keepalived_vrrp_scripts: []
+keepalived_vrrp_instances: []

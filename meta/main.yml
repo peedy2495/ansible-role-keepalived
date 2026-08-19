@@ -1,0 +1,31 @@
+---
+galaxy_info:
+  role_name: keepalived
+  namespace: peedy2495
+  author: peedy2495
+  description: Install and configure Keepalived from inventory variables
+  license: MIT
+  min_ansible_version: "2.20"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - resolute
+        - noble
+        - jammy
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+  galaxy_tags:
+    - clustering
+    - failover
+    - highavailability
+    - keepalived
+    - networking
+
+dependencies: []

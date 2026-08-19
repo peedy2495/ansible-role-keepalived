@@ -1,0 +1,46 @@
+---
+- name: Verify representative configuration rendering
+  hosts: localhost
+  gather_facts: false
+  vars:
+    keepalived_config_header: "# Render test"
+    keepalived_global_defs:
+      router_id: lb01
+      enable_script_security: true
+    keepalived_vrrp_scripts:
+      - name: check_web
+        script: /usr/bin/true
+        interval: 2
+        weight: -20
+    keepalived_vrrp_auth_passes:
+      VI_WEB: secret
+    keepalived_vrrp_instances:
+      - name: VI_WEB
+        state: MASTER
+        interface: eth0
+        virtual_router_id: 51
+        priority: 150
+        auth_type: PASS
+        unicast_src_ip: 192.0.2.11
+        unicast_peers:
+          - 192.0.2.12
+        virtual_ipaddresses:
+          - 192.0.2.100/24 dev eth0
+        track_scripts:
+          - check_web
+  tasks:
+    - name: Render the role template
+      ansible.builtin.set_fact:
+        rendered_keepalived_config: >-
+          {{ lookup('ansible.builtin.template',
+                    '../templates/keepalived.conf.j2') }}
+
+    - name: Verify important rendered directives
+      ansible.builtin.assert:
+        that:
+          - "'global_defs {' in rendered_keepalived_config"
+          - "'vrrp_script check_web {' in rendered_keepalived_config"
+          - "'vrrp_instance VI_WEB {' in rendered_keepalived_config"
+          - "'unicast_peer {' in rendered_keepalived_config"
+          - "'auth_pass secret' in rendered_keepalived_config"
+          - "'192.0.2.100/24 dev eth0' in rendered_keepalived_config"

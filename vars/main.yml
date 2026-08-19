@@ -1,0 +1,13 @@
+---
+keepalived_supported_os_versions:
+  Ubuntu:
+    - "22"
+    - "24"
+    - "26"
+  Debian:
+    - "12"
+    - "13"
+  Rocky:
+    - "8"
+    - "9"
+    - "10"

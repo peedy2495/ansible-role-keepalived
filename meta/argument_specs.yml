@@ -1,0 +1,41 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure Keepalived
+    options:
+      keepalived_state:
+        type: str
+        default: unmanaged
+        choices:
+          - present
+          - absent
+          - unmanaged
+        description: Desired lifecycle state for this inventory host.
+      keepalived_package_name:
+        type: str
+        default: keepalived
+      keepalived_service_name:
+        type: str
+        default: keepalived
+      keepalived_config_path:
+        type: path
+        default: /etc/keepalived/keepalived.conf
+      keepalived_config_header:
+        type: str
+        default: "# This file is managed by Ansible."
+      keepalived_global_defs:
+        type: dict
+        default: {}
+      keepalived_vrrp_scripts:
+        type: list
+        elements: dict
+        default: []
+      keepalived_vrrp_instances:
+        type: list
+        elements: dict
+        default: []
+      keepalived_vrrp_auth_passes:
+        type: dict
+        description: >-
+          VRRP authentication passwords keyed by instance name. Supply this
+          variable as an extra var; do not store it in inventory.
