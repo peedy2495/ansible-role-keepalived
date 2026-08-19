@@ -111,6 +111,12 @@ Priority controls the initial election and failover. A recovered
 higher-priority node will not take the VIP back from a healthy active node.
 Set an instance's `nopreempt: false` only when automatic failback is required.
 
+VRRP scripts run as the dedicated `keepalived_script` system user by default;
+the role creates that account when necessary. A script can select an existing
+account explicitly with `user`, for example `user: root`. When root is used
+with `enable_script_security`, every component of the script path must be
+protected from modification by non-root users.
+
 For a host where Keepalived must be removed, set only:
 
 ```yaml

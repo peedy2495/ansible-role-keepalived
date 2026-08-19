@@ -16,6 +16,33 @@
   loop_control:
     label: "{{ item.name | default('unnamed script') }}"
 
+- name: Create Keepalived script group
+  ansible.builtin.group:
+    name: "{{ keepalived_script_user }}"
+    system: true
+    state: present
+  when:
+    - keepalived_manage_script_user
+    - keepalived_script_user != 'root'
+    - >-
+      keepalived_vrrp_scripts | selectattr('user', 'undefined') | list |
+      length > 0
+
+- name: Create Keepalived script user
+  ansible.builtin.user:
+    name: "{{ keepalived_script_user }}"
+    group: "{{ keepalived_script_user }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+    state: present
+  when:
+    - keepalived_manage_script_user
+    - keepalived_script_user != 'root'
+    - >-
+      keepalived_vrrp_scripts | selectattr('user', 'undefined') | list |
+      length > 0
+
 - name: Validate VRRP instances
   ansible.builtin.assert:
     that:
@@ -66,7 +93,7 @@
     owner: root
     group: root
     mode: "0644"
-    validate: "/usr/sbin/keepalived --config-test --config-file %s"
+    validate: "/usr/sbin/keepalived -t -f %s"
   notify: Restart keepalived
 
 - name: Enable and start keepalived

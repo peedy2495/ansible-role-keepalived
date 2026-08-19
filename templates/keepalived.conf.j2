@@ -27,8 +27,7 @@ vrrp_script {{ script.name }} {
 {% endif %}
 {% if script.fall is defined %}    fall {{ script.fall }}
 {% endif %}
-{% if script.user is defined %}    user {{ script.user }}
-{% endif %}
+    user {{ script.user | default(keepalived_script_user) }}
 }
 {% endfor %}
 {% for instance in keepalived_vrrp_instances %}

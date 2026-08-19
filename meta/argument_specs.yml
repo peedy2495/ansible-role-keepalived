@@ -46,6 +46,12 @@ argument_specs:
         type: list
         elements: dict
         default: []
+      keepalived_script_user:
+        type: str
+        default: keepalived_script
+      keepalived_manage_script_user:
+        type: bool
+        default: true
       keepalived_vrrp_instances:
         type: list
         elements: dict

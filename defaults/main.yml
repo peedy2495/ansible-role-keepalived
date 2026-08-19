@@ -38,6 +38,10 @@ keepalived_global_defs: {}
 keepalived_vrrp_scripts: []
 keepalived_vrrp_instances: []
 
+# Scripts without their own user run under this dedicated system account.
+keepalived_script_user: keepalived_script
+keepalived_manage_script_user: true
+
 # All instances start as BACKUP and participate in the initial election by
 # priority. nopreempt prevents a recovered higher-priority node from taking
 # ownership back from a healthy active node.

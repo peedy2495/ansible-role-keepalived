@@ -5,6 +5,7 @@
   vars:
     keepalived_vrrp_default_state: BACKUP
     keepalived_vrrp_default_nopreempt: true
+    keepalived_script_user: keepalived_script
     keepalived_config_header: "# Render test"
     keepalived_global_defs:
       router_id: lb01
@@ -41,6 +42,7 @@
         that:
           - "'global_defs {' in rendered_keepalived_config"
           - "'vrrp_script check_web {' in rendered_keepalived_config"
+          - "'user keepalived_script' in rendered_keepalived_config"
           - "'vrrp_instance VI_WEB {' in rendered_keepalived_config"
           - "'state BACKUP' in rendered_keepalived_config"
           - "'nopreempt' in rendered_keepalived_config"
