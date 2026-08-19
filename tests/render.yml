@@ -3,6 +3,8 @@
   hosts: localhost
   gather_facts: false
   vars:
+    keepalived_vrrp_default_state: BACKUP
+    keepalived_vrrp_default_nopreempt: true
     keepalived_config_header: "# Render test"
     keepalived_global_defs:
       router_id: lb01
@@ -16,7 +18,6 @@
       VI_WEB: secret
     keepalived_vrrp_instances:
       - name: VI_WEB
-        state: MASTER
         interface: eth0
         virtual_router_id: 51
         priority: 150
@@ -41,6 +42,8 @@
           - "'global_defs {' in rendered_keepalived_config"
           - "'vrrp_script check_web {' in rendered_keepalived_config"
           - "'vrrp_instance VI_WEB {' in rendered_keepalived_config"
+          - "'state BACKUP' in rendered_keepalived_config"
+          - "'nopreempt' in rendered_keepalived_config"
           - "'unicast_peer {' in rendered_keepalived_config"
           - "'auth_pass secret' in rendered_keepalived_config"
           - "'192.0.2.100/24 dev eth0' in rendered_keepalived_config"

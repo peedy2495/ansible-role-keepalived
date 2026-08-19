@@ -29,7 +29,9 @@
       - item.priority | int <= 255
       - item.virtual_ipaddresses is defined
       - item.virtual_ipaddresses | length > 0
-      - item.state | default('BACKUP') in ['MASTER', 'BACKUP']
+      - >-
+        item.state | default(keepalived_vrrp_default_state) in
+        ['MASTER', 'BACKUP']
       - (item.auth_type | default('PASS')) in ['PASS', 'AH']
       - item.auth_pass is not defined
       - >-

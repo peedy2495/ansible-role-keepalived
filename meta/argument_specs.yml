@@ -20,6 +20,11 @@ argument_specs:
       keepalived_config_path:
         type: path
         default: /etc/keepalived/keepalived.conf
+      keepalived_node_address:
+        type: str
+        description: >-
+          Local Keepalived address. Defaults to the inventory ansible_host
+          value, or inventory_hostname when ansible_host is undefined.
       keepalived_config_header:
         type: str
         default: "# This file is managed by Ansible."
@@ -34,6 +39,15 @@ argument_specs:
         type: list
         elements: dict
         default: []
+      keepalived_vrrp_default_state:
+        type: str
+        default: BACKUP
+        choices:
+          - MASTER
+          - BACKUP
+      keepalived_vrrp_default_nopreempt:
+        type: bool
+        default: true
       keepalived_vrrp_auth_passes:
         type: dict
         description: >-

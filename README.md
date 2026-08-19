@@ -3,8 +3,8 @@
 Installs and configures Keepalived on Ubuntu 26.04, 24.04, and 22.04 LTS;
 Debian 13 and 12; and Rocky Linux 10, 9, and 8. All non-secret configuration
 comes from normal inventory variables. Group variables hold shared settings
-and host variables supply node-specific state, priority, interfaces, and
-addresses. Secrets must be supplied as extra vars. Ansible Core 2.20 or newer
+and host variables supply node-specific priority, interfaces, and addresses.
+Secrets must be supplied as extra vars. Ansible Core 2.20 or newer
 is required so the current target operating systems' Python versions are
 supported.
 
@@ -57,7 +57,6 @@ keepalived_vrrp_scripts:
 
 keepalived_vrrp_instances:
   - name: VI_WEB
-    state: "{{ keepalived_node_state }}"
     interface: "{{ keepalived_node_interface }}"
     virtual_router_id: 51
     priority: "{{ keepalived_node_priority }}"
@@ -74,10 +73,8 @@ keepalived_vrrp_instances:
 ```yaml
 # host_vars/lb01.yml
 ---
-keepalived_node_state: MASTER
 keepalived_node_interface: ens18
 keepalived_node_priority: 150
-keepalived_node_address: 192.0.2.11
 keepalived_peer_addresses:
   - 192.0.2.12
 ```
@@ -85,13 +82,21 @@ keepalived_peer_addresses:
 ```yaml
 # host_vars/lb02.yml
 ---
-keepalived_node_state: BACKUP
 keepalived_node_interface: ens18
 keepalived_node_priority: 100
-keepalived_node_address: 192.0.2.12
 keepalived_peer_addresses:
   - 192.0.2.11
 ```
+
+`keepalived_node_address` defaults to the host's `ansible_host` inventory
+value. Define it in `host_vars` only when Keepalived must use a different local
+address than Ansible uses to connect. If `ansible_host` is absent, the role
+falls back to `inventory_hostname`.
+
+Every VRRP instance defaults to `state BACKUP` with `nopreempt` enabled.
+Priority controls the initial election and failover. A recovered
+higher-priority node will not take the VIP back from a healthy active node.
+Set an instance's `nopreempt: false` only when automatic failback is required.
 
 For a host where Keepalived must be removed, set only:
 

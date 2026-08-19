@@ -4,3 +4,8 @@
   gather_facts: true
   roles:
     - role: ansible-role-keepalived
+  post_tasks:
+    - name: Verify node address defaults to the inventory connection address
+      ansible.builtin.assert:
+        that:
+          - keepalived_node_address == ansible_host

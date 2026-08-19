@@ -8,6 +8,10 @@ keepalived_package_name: keepalived
 keepalived_service_name: keepalived
 keepalived_config_path: /etc/keepalived/keepalived.conf
 
+# Defaults to the connection address from inventory. Define this explicitly in
+# host_vars only when Keepalived must use a different local address.
+keepalived_node_address: "{{ ansible_host | default(inventory_hostname) }}"
+
 # Optional text written at the beginning of keepalived.conf, for example:
 # keepalived_config_header: |
 #   # Managed by Ansible
@@ -17,3 +21,9 @@ keepalived_config_header: "# This file is managed by Ansible."
 keepalived_global_defs: {}
 keepalived_vrrp_scripts: []
 keepalived_vrrp_instances: []
+
+# All instances start as BACKUP and participate in the initial election by
+# priority. nopreempt prevents a recovered higher-priority node from taking
+# ownership back from a healthy active node.
+keepalived_vrrp_default_state: BACKUP
+keepalived_vrrp_default_nopreempt: true

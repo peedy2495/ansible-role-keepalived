@@ -34,12 +34,12 @@ vrrp_script {{ script.name }} {
 {% for instance in keepalived_vrrp_instances %}
 
 vrrp_instance {{ instance.name }} {
-    state {{ instance.state | default('BACKUP') }}
+    state {{ instance.state | default(keepalived_vrrp_default_state) }}
     interface {{ instance.interface }}
     virtual_router_id {{ instance.virtual_router_id }}
     priority {{ instance.priority }}
     advert_int {{ instance.advert_int | default(1) }}
-{% if instance.nopreempt | default(false) %}    nopreempt
+{% if instance.nopreempt | default(keepalived_vrrp_default_nopreempt) %}    nopreempt
 {% endif %}
 {% if instance.preempt_delay is defined %}    preempt_delay {{ instance.preempt_delay }}
 {% endif %}
