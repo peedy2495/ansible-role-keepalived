@@ -28,7 +28,7 @@ hosts run Keepalived.
   hosts: all
   become: true
   roles:
-    - role: keepalived
+    - role: peedy2495.keepalived
 ```
 
 ## Inventory configuration
